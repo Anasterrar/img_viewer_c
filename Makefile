@@ -3,7 +3,8 @@ NAME = visual_c
 CC = gcc
 
 SRCS = main.c\
-       img_viewer.c
+       img_loader.c\
+	utils.c
 
 all: $(NAME)
 

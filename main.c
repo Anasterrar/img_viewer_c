@@ -1,6 +1,7 @@
 #include "visual.h"
 //REFACTOR
-/*
+/*--------Variable Global
+----------Deuxieme fichier
 -Petit_buff pour le header
 -prendre les infos du header
 -Construire le deuxiemes buff avec les info du header
@@ -9,60 +10,43 @@
 //OPTIMISATION
 //BONUS (ERRORS, JPG, JPEG, WEBP, BUTTON TO CHANGE IMAGE);
 
-char	*pixel_buff;
-
-uint32_t pixel(int *index)
-{
-        uint8_t r;
-        uint8_t g;
-        uint8_t b;
-
-        r = (unsigned char)pixel_buff[(*index)++];
-        g = (unsigned char)pixel_buff[(*index)++];
-        b = (unsigned char)pixel_buff[(*index)++];
-
-        return ((uint32_t)r << 16)
-             | ((uint32_t)g << 8)
-             | b;
-}
+t_visual	*app;
+t_img_data	*img_data;
+char	*pixels_buff;
 
 int main(int argc, char **argv)
 {
 	(void)argc;
-	int	header_index;
 	bool	running;
-	t_img_data      *img_data;
-	uint32_t        *framebuffer;
-	SDL_Window *window;
-	SDL_Renderer *renderer;
-	SDL_Texture *texture;
-	SDL_Event event;
-
+	app = malloc(sizeof(t_visual));
+	SDL_Event event;	
+	app->windowWidth = 1080;
+	app->windowHeight = 720;
 	img_data = malloc(sizeof(t_img_data));
-	header_index = load_img(argv[1], &img_data);
-	framebuffer = malloc((size_t)(img_data)->width * (img_data)->height * sizeof(uint32_t));
-	if (!framebuffer)
+	if (load_img(argv[1]) == 0)
+		return (1);
+	app->framebuffer = malloc((size_t)(app->windowWidth) * app->windowHeight * sizeof(uint32_t));
+	if (!(app->framebuffer))
     		return (1);
-	for (int i = 0; i < (img_data)->width  * (img_data)->height; i++)
-		framebuffer[i] = pixel(&header_index);
-	free(pixel_buff);
+	fill_frame_buff(&img_data);
+	free(pixels_buff);
 	SDL_Init(SDL_INIT_VIDEO);
-	window = SDL_CreateWindow(
+	app->window = SDL_CreateWindow(
 		argv[1], 
-		(img_data)->width, 
-		(img_data)->height, 
+		app->windowWidth, 
+		app->windowHeight, 
 		0
 	);
-	renderer = SDL_CreateRenderer(
-		window,
+	app->renderer = SDL_CreateRenderer(
+		app->window,
 		NULL
 	);
-	texture = SDL_CreateTexture(
-		renderer,
+	app->texture = SDL_CreateTexture(
+		app->renderer,
 		SDL_PIXELFORMAT_XRGB8888,
 		SDL_TEXTUREACCESS_STREAMING,
-		(img_data)->width,
-		(img_data)->height 
+		app->windowWidth,
+		app->windowHeight 
 	);
 	running = true;
 	while (running)
@@ -72,22 +56,24 @@ int main(int argc, char **argv)
                         if (event.type == SDL_EVENT_QUIT)
                                 running = false;
                 }
+		SDL_GetWindowSizeInPixels(app->window, &(app->windowWidth), &(app->windowHeight));
+		printf("Width: %d; Height: %d\n", app->windowWidth, app->windowHeight);
 		SDL_UpdateTexture(
-			texture,
+			app->texture,
 			NULL, 
-			framebuffer,
-			(img_data)->width  * sizeof(uint32_t)
+			app->framebuffer,
+			app->windowWidth * sizeof(uint32_t)
 		);
 
-		SDL_RenderClear(renderer);
-		SDL_RenderTexture(renderer, texture, NULL, NULL);
-		SDL_RenderPresent(renderer);
+		SDL_RenderClear(app->renderer);
+		SDL_RenderTexture(app->renderer, app->texture, NULL, NULL);
+		SDL_RenderPresent(app->renderer);
+		SDL_Delay(1000);
 	}
-	SDL_DestroyTexture(texture);
-	SDL_DestroyRenderer(renderer);
-	SDL_DestroyWindow(window);
+	SDL_DestroyTexture(app->texture);
+	SDL_DestroyRenderer(app->renderer);
+	SDL_DestroyWindow(app->window);
 	SDL_Quit();
 	free(img_data);
 	return (0);
-
 }
