@@ -40,7 +40,7 @@ typedef struct s_visual
 #define	HEIGHT_DEFAULT 720
 #define	HEADER_BUFF_SIZE 1000
 #define BACKGROUND_COLOR 0x181c70
-
+#define ERROR_ARGUMENT_MISSING "Error: no argument provided\n"
 //FUNCTIONS
 //A ranger
 
@@ -53,4 +53,6 @@ int     	ft_dump(char **data, char *str);
 void		fill_frame_buff(t_img_data *img_data);
 void		print_header(t_img_data *img_data);
 void		free_all(t_img_data **img_data);
+
+int     error_input(int argc, char **argv);
 #endif

@@ -1,5 +1,4 @@
 #include "visual.h"
-extern char * pixels_buff;
 extern t_visual	*app;
 
 int	ft_strlen(char *str)
@@ -40,15 +39,23 @@ int	ft_dump(char **data, char *str)
 		(*data)[i] = str[i];
 		i++;
 	}
-	(*data)[i] = '\0';
 	return (1);		
 }
 
 void	free_all(t_img_data **img_data)
-{
-	free((*img_data)->type);
-	free((*img_data)->comment);
-	free((*img_data));
+{	
+	t_img_data	*tmp;
+	
+	while (*img_data != NULL)
+	{
+		tmp = (*img_data)->next;
+		free((*img_data)->name);
+		free((*img_data)->type);
+		free((*img_data)->comment);
+		free((*img_data)->pixels_buff);
+		free(*img_data);
+		(*img_data) = tmp;
+	}
 }
 
 void    print_header(t_img_data *img_data)
@@ -88,7 +95,7 @@ void    fill_frame_buff(t_img_data *img_data)
 	pixel_index = img_data->pixels_start;
         offset_x = (app->windowWidth - img_data->width) / 2;
         offset_y = (app->windowHeight - img_data->height) / 2;
-        printf("Offset_x: %d\nOffset_y: %d\n", offset_x, offset_y);
+        //printf("Offset_x: %d\nOffset_y: %d\n", offset_x, offset_y);
         for (; i < app->windowWidth * offset_y; i++)
                 (app->framebuffer)[i] = BACKGROUND_COLOR;
         for (; i < app->windowWidth * (img_data->height + offset_y); i++)
