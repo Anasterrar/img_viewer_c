@@ -1,10 +1,8 @@
 #include "visual.h"
 
-extern char    *pixels_buff;
 extern t_img_data      *img_data;
-char    header_buff[HEADER_BUFF_SIZE];
 
-int	get_type(t_img_data **img_data, int *i)
+int	get_type(t_img_data **img_data, char *header_buff, int *i)
 {
 	int	j;
 	int	len;
@@ -28,7 +26,7 @@ int	get_type(t_img_data **img_data, int *i)
 	return (1);
 }
 
-int	get_comment(t_img_data **img_data, int *i)
+int	get_comment(t_img_data **img_data, char *header_buff, int *i)
 {
 	int	j;
 	int	len;
@@ -62,7 +60,7 @@ int	get_comment(t_img_data **img_data, int *i)
 	return (1);
 }
 
-int	get_dimension(t_img_data **img_data, int *i)
+int	get_dimension(t_img_data **img_data, char *header_buff, int *i)
 {
 	int	j;
 	char	wBuff[5];
@@ -92,7 +90,7 @@ int	get_dimension(t_img_data **img_data, int *i)
 	return (1);
 }
 
-int	get_max_value(t_img_data **img_data, int *i)
+int	get_max_value(t_img_data **img_data, char *header_buff, int *i)
 {
 	int	j;
 	char	mBuff[5];
@@ -111,31 +109,36 @@ int	get_max_value(t_img_data **img_data, int *i)
 	return (1); 
 }
 
-int	get_img_data(t_img_data **img_data)
+int	get_img_data(t_img_data **img_data, char *header_buff)
 {
 	int	i;
 	
 	i = 0;
-	if (get_type(img_data, &i) == 0)
+	if (get_type(img_data, header_buff, &i) == 0)
 		return (0);
 	i++;
-	if (get_comment(img_data, &i) == 0)
+	if (get_comment(img_data, header_buff, &i) == 0)
 		return (0);
-	if (get_dimension(img_data, &i) == 0)
+	if (get_dimension(img_data, header_buff, &i) == 0)
 		return (0);
 	i++;
-	if (get_max_value(img_data, &i) == 0)
+	if (get_max_value(img_data, header_buff, &i) == 0)
 		return (0);
 	(*img_data)->pixels_start = i + 1;
+	(*img_data)->size = (*img_data)->width * (*img_data)->width * 3 + (*img_data)->pixels_start;
+	(*img_data)->pixels_buff = malloc((*img_data)->size);
 	return (1);
 }
 
-int	load_img(char *fileName)
+t_img_data	*load_img(char *fileName)
 {
 	int	fd;
-	
+	char    header_buff[HEADER_BUFF_SIZE];
+	t_img_data	*img_data;
+
+	img_data = create_img_data(fileName);	
 	if (!img_data)
-		return (0);
+		return (NULL);
 	fd = open(fileName, O_RDONLY);
 	if (!fd)
 	{
@@ -145,12 +148,42 @@ int	load_img(char *fileName)
 	read(fd, header_buff, HEADER_BUFF_SIZE);
 	close(fd);
 	//Get img data
-	if(get_img_data(&img_data) == 0)
-		return (0);
-	pixels_buff = malloc(img_data->width * img_data->height * 3 + img_data->pixels_start);
+	if(get_img_data(&img_data, header_buff) == 0)
+		return (NULL);
 	fd = open(fileName, O_RDONLY);
-        read(fd, pixels_buff, img_data->width * img_data->height * 3 + img_data->pixels_start);
-	print_header(img_data);
-	//
-	return (1);
+        read(fd, img_data->pixels_buff, img_data->size);
+	return (img_data);
+}
+
+t_img_data	*load_all_img(int argc, char **argv)
+{
+	int	i;
+	t_img_data	*first;
+	t_img_data	*tmp;
+	t_img_data	*new;
+	
+	i = 1;
+	first = load_img(argv[i]);
+	if (!first)
+		return (NULL);
+	if (argc -1 <= 1)
+		return (first);
+	i++;
+	tmp = first;
+	for (; i < argc; i++)
+	{
+		new = load_img(argv[i]);
+		if (!new)
+			break;
+		tmp->next = new;
+		new->previous = tmp;
+		tmp = tmp->next;
+	}
+	tmp = first;
+	while (tmp != NULL)
+	{
+		printf("%s\n", basename(tmp->name));
+		tmp = tmp->next;
+	}
+	return (first);
 }

@@ -1,35 +1,28 @@
 #include "visual.h"
-//REFACTOR
-/*--------Variable Global
-----------Deuxieme fichier
--Petit_buff pour le header
--prendre les infos du header
--Construire le deuxiemes buff avec les info du header
--Construre framebuff avec les infos du buff
-*/
-//OPTIMISATION
-//BONUS (ERRORS, JPG, JPEG, WEBP, BUTTON TO CHANGE IMAGE);
+//Errors
+//free_all
+//Afficher le header dans le terminal de facon stylisé, ascii art
+//Zoom
+//BONUS (JPG, JPEG, WEBP);
 
 t_visual	*app;
-t_img_data	*img_data;
-char	*pixels_buff;
 
 int main(int argc, char **argv)
 {
-	(void)argc;
-	bool	running;
+	t_img_data	*first;
+	t_img_data	*tmp;
+	bool		running;
 	app = malloc(sizeof(t_visual));
 	SDL_Event event;	
-	app->windowWidth = 1080;
-	app->windowHeight = 720;
-	img_data = malloc(sizeof(t_img_data));
-	if (load_img(argv[1]) == 0)
+	app->windowWidth = WIDTH_DEFAULT;
+	app->windowHeight = HEIGHT_DEFAULT;
+	first = load_all_img(argc, argv);
+	if (first == NULL)
 		return (1);
 	app->framebuffer = malloc((size_t)(app->windowWidth) * app->windowHeight * sizeof(uint32_t));
 	if (!(app->framebuffer))
     		return (1);
-	fill_frame_buff(&img_data);
-	free(pixels_buff);
+	fill_frame_buff(first);
 	SDL_Init(SDL_INIT_VIDEO);
 	app->window = SDL_CreateWindow(
 		argv[1], 
@@ -48,6 +41,7 @@ int main(int argc, char **argv)
 		app->windowWidth,
 		app->windowHeight 
 	);
+	tmp = first;
 	running = true;
 	while (running)
 	{
@@ -55,9 +49,25 @@ int main(int argc, char **argv)
                 {
                         if (event.type == SDL_EVENT_QUIT)
                                 running = false;
+			if (event.type == SDL_EVENT_KEY_DOWN)
+			{
+				if (event.key.key == SDLK_ESCAPE)
+					running = false;
+				if (tmp->previous != NULL && event.key.key == SDLK_LEFT)
+				{
+					
+					tmp = tmp->previous;
+					fill_frame_buff(tmp);
+				}
+				if (tmp->next != NULL && event.key.key == SDLK_RIGHT)
+				{
+					tmp = tmp->next;
+					fill_frame_buff(tmp);
+				}
+			}
                 }
 		SDL_GetWindowSizeInPixels(app->window, &(app->windowWidth), &(app->windowHeight));
-		printf("Width: %d; Height: %d\n", app->windowWidth, app->windowHeight);
+		//printf("Width: %d; Height: %d\n", app->windowWidth, app->windowHeight);
 		SDL_UpdateTexture(
 			app->texture,
 			NULL, 
@@ -68,12 +78,12 @@ int main(int argc, char **argv)
 		SDL_RenderClear(app->renderer);
 		SDL_RenderTexture(app->renderer, app->texture, NULL, NULL);
 		SDL_RenderPresent(app->renderer);
-		SDL_Delay(1000);
+		//SDL_Delay(1000);
 	}
 	SDL_DestroyTexture(app->texture);
 	SDL_DestroyRenderer(app->renderer);
 	SDL_DestroyWindow(app->window);
 	SDL_Quit();
-	free(img_data);
+	//free(first);
 	return (0);
 }

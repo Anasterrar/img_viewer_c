@@ -2,9 +2,10 @@ NAME = visual_c
 
 CC = gcc
 
-SRCS = main.c\
-       img_loader.c\
-	utils.c
+SRCS =  main.c \
+	img_loader.c \
+	utils.c \
+	errors_handler.c
 
 all: $(NAME)
 
