@@ -1,5 +1,20 @@
 #include "visual.h"
-extern t_visual	*app;
+#define RESET   "\033[0m"
+#define BLUE    "\033[38;5;39m"
+#define BOLD    "\033[1m"
+#define CYAN    "\033[38;5;51m"
+
+extern t_visual *app;
+
+int	min(int n1, int n2)
+{
+	return (n1 <= n2 ? n1 : n2);
+}
+
+int	max(int n1, int n2)
+{
+	return (n1 >= n2 ? n1 : n2);
+}
 
 int	ft_strlen(char *str)
 {
@@ -9,6 +24,20 @@ int	ft_strlen(char *str)
 	while (str[i])
 		i++;
 	return (i);
+}
+
+t_surface	*create_surface(int width, int height)
+{
+	t_surface	*new;
+	
+	new = malloc(sizeof(t_surface));
+	if (!new)
+		return (NULL);
+	new->framebuffer = malloc((size_t)(width) * height * sizeof(uint32_t));
+	new->width = width;
+	new->height = height;
+	new->size = width * height;
+	return (new);
 }
 
 t_img_data	*create_img_data(char *fileName)
@@ -53,6 +82,8 @@ void	free_all(t_img_data **img_data)
 		free((*img_data)->type);
 		free((*img_data)->comment);
 		free((*img_data)->pixels_buff);
+		free((*img_data)->loaded_img->framebuffer);
+		free((*img_data)->loaded_img);
 		free(*img_data);
 		(*img_data) = tmp;
 	}
@@ -60,13 +91,23 @@ void	free_all(t_img_data **img_data)
 
 void    print_header(t_img_data *img_data)
 {
-	printf("->->->->->->->Name<-<-<-<-<-<-<-<-\n%s\n", img_data->name);
-	printf("---Type---\n%s\n", img_data->type);
-	if (ft_strlen(img_data->comment) > 0)
-		printf("---Comment---\n%s", img_data->comment);
-	printf("---Width---\n%d\n", img_data->width);
-	printf("---Height---\n%d\n", img_data->height);
-	printf("---Max-Value---\n%d\n", img_data->max_value);
+	system("clear");
+	printf("\n");
+        printf(BLUE "╔══════════════════════════════════════════════╗" RESET "\n");
+        printf(BLUE "║" RESET "                                              " BLUE "║" RESET "\n");
+        printf(BLUE "║" RESET "              " BOLD CYAN "✦  IMAGE VIEWER  ✦" RESET
+                "             " BLUE " ║" RESET "\n\n");	
+	printf("  Name: %s\n", img_data->name);
+        printf("  Type: %s\n", img_data->type);
+        if (ft_strlen(img_data->comment) > 0)
+                printf("  Comment:\n   %s", img_data->comment);
+        printf("  Width: %d\n", img_data->width);
+        printf("  Height: %d\n", img_data->height);
+        printf("  Max-Value: %d\n", img_data->max_value);
+	
+        printf(BLUE "║" RESET "                                              " BLUE "║" RESET "\n");
+        printf(BLUE "╚══════════════════════════════════════════════╝" RESET "\n");
+        printf("\n");
 }
 
 uint32_t pixel(int *index, char **pixels_buff)
@@ -84,28 +125,53 @@ uint32_t pixel(int *index, char **pixels_buff)
              | b;
 }
 
-void    fill_frame_buff(t_img_data *img_data)
+void    create_frame(t_img_data **img_data)
 {
         int     i;
 	int	pixel_index;
-        int     offset_x;
-        int     offset_y;
 
         i = 0;
-	pixel_index = img_data->pixels_start;
-        offset_x = (app->windowWidth - img_data->width) / 2;
-        offset_y = (app->windowHeight - img_data->height) / 2;
-        //printf("Offset_x: %d\nOffset_y: %d\n", offset_x, offset_y);
-        for (; i < app->windowWidth * offset_y; i++)
-                (app->framebuffer)[i] = BACKGROUND_COLOR;
-        for (; i < app->windowWidth * (img_data->height + offset_y); i++)
-        {
-                if (i % app->windowWidth < offset_x
-                        ||i % app->windowWidth >= offset_x + img_data->width)
-                        (app->framebuffer)[i] = BACKGROUND_COLOR;
-                else
-                        (app->framebuffer)[i] = pixel(&pixel_index, &(img_data->pixels_buff));
-        }
-        for (; i < app->windowWidth * app->windowHeight; i++)
-                (app->framebuffer)[i] = BACKGROUND_COLOR;
+	pixel_index = (*img_data)->pixels_start;
+        for (; i < (*img_data)->width * (*img_data)->height; i++)
+		((*img_data)->loaded_img->framebuffer)[i] = pixel(&pixel_index, &((*img_data)->pixels_buff));
 }
+
+void    ft_fill(t_surface **surface, uint32_t color)
+{
+	int	i;
+
+	i = 0;
+	for (; i < (*surface)->size; i++)
+		((*surface)->framebuffer)[i] = color;
+}
+
+void	ft_blit(t_surface **surface, t_surface *image, int pos_x, int pos_y)
+{
+	int	x;
+	int	y;
+	int	dst_x;
+	int	dst_y;
+
+	y = 0;
+	while (y < image->height)
+	{
+		x = 0;
+		while (x < image->width)
+		{
+			dst_x = x + pos_x;
+			dst_y = y + pos_y;
+			if (dst_x >= 0 && dst_x < (*surface)->width
+				&& dst_y >= 0 && dst_y < (*surface)->height)
+			{
+				(*surface)->framebuffer[
+					dst_y * (*surface)->width + dst_x
+				] = image->framebuffer[
+					y * image->width + x
+				];
+			}
+			x++;
+		}
+		y++;
+	}
+}
+

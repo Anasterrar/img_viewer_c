@@ -127,6 +127,7 @@ int	get_img_data(t_img_data **img_data, char *header_buff)
 	(*img_data)->pixels_start = i + 1;
 	(*img_data)->size = (*img_data)->width * (*img_data)->width * 3 + (*img_data)->pixels_start;
 	(*img_data)->pixels_buff = malloc((*img_data)->size);
+	(*img_data)->loaded_img = create_surface((*img_data)->width, (*img_data)->height);
 	return (1);
 }
 
@@ -152,6 +153,7 @@ t_img_data	*load_img(char *fileName)
 		return (NULL);
 	fd = open(fileName, O_RDONLY);
         read(fd, img_data->pixels_buff, img_data->size);
+	create_frame(&img_data);
 	return (img_data);
 }
 

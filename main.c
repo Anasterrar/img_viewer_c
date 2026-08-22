@@ -1,14 +1,19 @@
 #include "visual.h"
-//Afficher le header dans le terminal de facon stylisé, ascii art
+//free surface
+//Ajouter option CENTERED, Top/bottom left/right à blit
 //Zoom
+//BLITE et BLITE_TRANSFORME_SCALE
 //BONUS (JPG, JPEG, WEBP);
 
 t_visual	*app;
 
 void	app_destroy()
 {
-	if (app->framebuffer)
-		free(app->framebuffer);
+	if (app->screen)
+	{
+		free(app->screen->framebuffer);
+		free(app->screen);
+	}
 	if (app->window)
 		SDL_DestroyWindow(app->window);
 	if (app->texture)
@@ -55,6 +60,9 @@ int	app_init()
         );
 	if (!app->texture)
 		goto error;
+	app->screen = create_surface(app->windowWidth, app->windowHeight);
+        if (!(app->screen))
+                goto error;
 	return (1);
 	error:
 		app_destroy();
@@ -67,6 +75,11 @@ int main(int argc, char **argv)
 	t_img_data	*tmp;
 	SDL_Event 	event;
 	bool		running;
+	int		pos_x;
+	int		pos_y;
+
+	pos_x = 0;
+	pos_y = 0;
 	
 	if (error_input(argc, argv))
 		return (1);	
@@ -75,15 +88,14 @@ int main(int argc, char **argv)
 	first = load_all_img(argc, argv);
 	if (first == NULL)
 		goto quit;
-	app->framebuffer = malloc((size_t)(app->windowWidth) * app->windowHeight * sizeof(uint32_t));
-	if (!(app->framebuffer))
-    		goto quit;
-	fill_frame_buff(first);
 	tmp = first;
 	running = true;
-	
+	print_header(first);
+		
 	while (running)
 	{
+		ft_fill(&(app->screen), BACKGROUND_COLOR);
+		ft_blit(&(app->screen), tmp->loaded_img, pos_x, pos_y);
 		while (SDL_PollEvent(&event))
                 {
                         if (event.type == SDL_EVENT_QUIT)
@@ -91,6 +103,7 @@ int main(int argc, char **argv)
                                 running = false;
 				goto quit;
 			}
+				
 			if (event.type == SDL_EVENT_KEY_DOWN)
 			{
 				if (event.key.key == SDLK_ESCAPE)
@@ -102,13 +115,25 @@ int main(int argc, char **argv)
 				{
 					
 					tmp = tmp->previous;
-					fill_frame_buff(tmp);
+					ft_fill(&(app->screen), BACKGROUND_COLOR);
+                  			ft_blit(&(app->screen), tmp->loaded_img, pos_x, pos_y);
+					print_header(tmp);
 				}
 				if (tmp->next != NULL && event.key.key == SDLK_RIGHT)
 				{
 					tmp = tmp->next;
-					fill_frame_buff(tmp);
+					ft_fill(&(app->screen), BACKGROUND_COLOR);
+                  			ft_blit(&(app->screen), tmp->loaded_img, pos_x, pos_y);
+					print_header(tmp);
 				}
+				if (event.key.key == SDLK_Z)
+					pos_y = max(0, pos_y - 10);
+				if (event.key.key == SDLK_Q)
+					pos_x = max(0, pos_x - 10);
+				if (event.key.key == SDLK_S)
+					pos_y = min(app->windowHeight - tmp->height, pos_y + 10);
+				if (event.key.key == SDLK_D)
+					pos_x = min(app->windowWidth - tmp->width, pos_x + 10);
 			}
                 }
 		SDL_GetWindowSizeInPixels(app->window, &(app->windowWidth), &(app->windowHeight));
@@ -116,7 +141,7 @@ int main(int argc, char **argv)
 		SDL_UpdateTexture(
 			app->texture,
 			NULL, 
-			app->framebuffer,
+			app->screen->framebuffer,
 			app->windowWidth * sizeof(uint32_t)
 		);
 
