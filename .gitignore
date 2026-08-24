@@ -1,4 +1,6 @@
 /img
+/teste
+lib.txt
 *.ppm
 *.swp
 visual_c

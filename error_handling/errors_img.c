@@ -18,7 +18,7 @@ int	is_ppm_file(char *fileName)
 	return (1);
 }
 
-int	error_input(int argc, char **argv)
+int	error_input_img(int argc, char **argv)
 {
 	int	i;
 	int	fd;
