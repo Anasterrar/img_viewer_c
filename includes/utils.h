@@ -4,5 +4,6 @@
 int     	ft_strlen(char *str);
 int     	ft_dump(char **data, char *str);
 uint32_t    pixel(int *index, char **pixels_buff);
-void		put_pixel(t_surface **surface, int pos_x, int pos_y, uint32_t color);
+void		put_pixel(t_surface *surface, int pos_x, int pos_y, uint32_t color);
+void	print_pixel(uint32_t color);
 #endif

@@ -17,7 +17,6 @@ t_surface	*create_line(t_point p1, t_point p2)
 		return (NULL);
 	min_x = min(p1.x, p2.x); 
 	min_y = min(p1.y, p2.y);
-	//printf("%d %d %d %d", p1.x - min_x, p1.y - min_y, p2.x - min_x, p2.y - min_y);
-	bresenham_algorithm(&line,(t_point){p1.x - min_x, p1.y - min_y}, (t_point){p2.x - min_x, p2.y - min_y});
+	bresenham_algorithm(line,(t_point){p1.x - min_x, p1.y - min_y}, (t_point){p2.x - min_x, p2.y - min_y});
 	return	(line);
 }

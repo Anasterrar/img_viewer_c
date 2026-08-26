@@ -2,16 +2,25 @@ NAME = visual_c
 
 CC = gcc
 
+CFLAGS = -Wall -Wextra -Werror
+
 INCLUDES = -I includes
 
 SRCS = main.c \
        error_handling/errors_img.c \
        geometry/bresenham_algo.c \
-       geometry/create_line.c \
-       geometry/create_point.c \
-       geometry/create_polygone.c \
-       geometry/create_rect.c \
-       geometry/create_square.c \
+       geometry/create/create_line.c \
+       geometry/create/create_point.c \
+       geometry/create/create_point_list.c \
+       geometry/print_point.c \
+       geometry/print_point_list.c \
+       geometry/create/create_polygone.c \
+       geometry/create/create_rect.c \
+       geometry/create/create_square.c \
+       geometry/create/create_outlines.c \
+       geometry/draw/draw_outlines.c \
+       geometry/draw/draw_square.c \
+       geometry/draw/draw_rect.c \
        image/create_frame.c \
        image/create_img.c \
        image/free_all_img.c \
@@ -35,11 +44,24 @@ SRCS = main.c \
        visual/visual_init.c \
        visual/visual_quit.c
 
+OBJ = $(SRCS:.c=.o)
+
 all: $(NAME)
 
-$(NAME):
-	$(CC) $(SRCS) $(shell pkg-config --cflags --libs sdl3) $(INCLUDES) -lm -o $(NAME)
+$(NAME): $(OBJ)
+	$(CC) $(OBJ) -o $(NAME) -lSDL3 -lm
+
+%.o: %.c
+	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 
 clean:
-	rm -rf $(NAME)
-re: clean all
+	rm -f $(OBJ)
+
+fclean: clean
+	rm -f $(NAME)
+
+a: fclean all
+
+re: a clean 
+
+.PHONY: all clean fclean a re

@@ -1,6 +1,10 @@
+main.c
+Makefile
 /img
 /teste
 lib.txt
 *.ppm
 *.swp
+*.o
 visual_c
+

@@ -30,12 +30,17 @@ int	ft_dump(char **data, char *str)
 	return (1);		
 }
 
-void	put_pixel(t_surface **surface, int pos_x, int pos_y, uint32_t color)
+void	put_pixel(t_surface *surface, int pos_x, int pos_y, uint32_t color)
 {
 	int	pos;
 
-	pos = pos_y * (*surface)->width + pos_x;
-	((*surface)->framebuffer)[pos] = color;	
+	pos = pos_y * surface->width + pos_x;
+	surface->framebuffer[pos] = color;	
+}
+
+void	print_pixel(uint32_t color)
+{
+	printf("Hex : %08X\n", color);
 }
 
 uint32_t pixel(int *index, char **pixels_buff)

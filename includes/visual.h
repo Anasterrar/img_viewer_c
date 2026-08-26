@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <libgen.h>
+#include <inttypes.h>
 //HEADER
 #include "surface.h"
 #include "image.h"
@@ -31,8 +32,11 @@ typedef struct s_visual
 	SDL_Texture 		*texture;
 }	t_visual;
 
-#define BACKGROUND_COLOR 0x181c70
-#define	TRANSPARENT	 0x00FFFFFF
+#define BACKGROUND_COLOR 	0x181c70
+#define BLACK 				0xFF000000
+#define	TRANS_BLACK			0x0100000
+#define RED					0xA61217
+#define	TRANSPARENT	 		0x00FFFFFF
 int		visual_init();
 void	visual_destroy();
 
