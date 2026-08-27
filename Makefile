@@ -32,8 +32,19 @@ SRCS = main.c \
        image/get_data/get_max_value.c \
        image/get_data/get_type.c \
        surface/blit.c \
-       surface/create_surface.c \
        surface/fill.c \
+       surface/clear.c \
+       surface/pixel/put_pixel.c \
+       surface/pixel/get_pixel.c \
+       surface/surface/create_surface.c \
+       surface/surface/destroy_surface.c \
+       surface/surface/resize_surface.c \
+       surface/get/get_surface_size.c \
+       surface/get/get_surface_width.c \
+       surface/get/get_surface_height.c \
+       surface/get/get_surface_pos.c \
+       surface/mask/put_mask.c \
+       surface/mask/remove_mask.c \
        utils/utils.c \
        utils/math/max.c \
        utils/math/max_list.c \

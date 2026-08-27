@@ -11,14 +11,15 @@ int main(int argc, char **argv)
 {
 	t_img_data	*first;
 	t_img_data	*tmp;
+	t_surface	*outlines;
+	bool 		is_outlines = false;
+
 	SDL_Event 	event;
 	bool		running;
 	int		pos_x;
 	int		pos_y;
-	t_surface	*square;
-	t_surface	*rectangle;
-	pos_x = 0;
-	pos_y = 0;
+	pos_x = 10;
+	pos_y = 10;
 	
 	if (error_input_img(argc, argv))
 		return (1);	
@@ -30,17 +31,7 @@ int main(int argc, char **argv)
 	tmp = first;
 	running = true;
 	print_header_img(first);
-	square = create_square(100);
-	rectangle = create_rect(100, 50);
-	fill(square, 0xf5427b);
-	fill(rectangle, 0x8df542);
-	//draw_outlines(poly, 4, RED);
-	//put_pixel(poly, poly->width / 2, poly->height / 2, RED);
-	
-	//fill(poly, RED);
-	//t_surface	*outlines = create_outlines(tmp->loaded_img, 10, RED, IN);
-	pos_x = 10;
-	pos_y = 10;
+	outlines = create_outlines(tmp->loaded_img, 10, 0x630da8, IN);
 	while (running)
 	{
 		while (SDL_PollEvent(&event))
@@ -76,13 +67,27 @@ int main(int argc, char **argv)
 					pos_y -= 2;
 				if (event.key.key == SDLK_S)
 					pos_y += 2;
+				if (event.key.key == SDLK_H)
+				{
+					is_outlines = is_outlines ? false : true ;
+				}
+				if (event.key.key == SDLK_O)
+				{
+					draw_outlines(tmp->loaded_img, 4, RED);
+				}
+					
 			}
         }
+		/*
+		print_point(get_surface_pos(tmp->loaded_img, GLOBAL, TOP_LEFT));
+		printf("SIZE:%d\n", get_surface_size(tmp->loaded_img));
+		printf("WIDTH:%d\n", get_surface_width(tmp->loaded_img));
+		printf("HEIGHT:%d\n", get_surface_height(tmp->loaded_img));
+		*/
 		fill(app->screen, BACKGROUND_COLOR);
-        //blit(app->screen, tmp->loaded_img, pos_x, pos_y);
-        //blit(app->screen, square, 1080 / 3, 720 / 3);
-        blit(app->screen, rectangle, 1080 - 200, 50);
-		draw_rect(tmp->loaded_img, 200, 50, 0, 0, BLACK);
+		blit(app->screen, tmp->loaded_img, 10, 10);
+		blit(app->screen, outlines, pos_x, pos_y);
+    
 		SDL_UpdateTexture(
 			app->texture,
 			NULL, 
@@ -93,7 +98,7 @@ int main(int argc, char **argv)
 		SDL_RenderClear(app->renderer);
 		SDL_RenderTexture(app->renderer, app->texture, NULL, NULL);
 		SDL_RenderPresent(app->renderer);
-		//SDL_Delay(1000);
+
 	}
 	quit:
 		visual_destroy();

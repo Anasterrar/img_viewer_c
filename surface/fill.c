@@ -1,9 +1,18 @@
 #include "visual.h"
 
-void    fill(t_surface *surface, uint32_t color)
+void	fill(t_surface *surface, uint32_t color)
 {
-	color |= 0xFF000000;
-	for (int i = 0; i < surface->size; i++)
-		if (surface->framebuffer[i] != TRANSPARENT)
+	if (!surface->mask)
+	{
+		for (int i = 0; i < surface->size; i++)
 			surface->framebuffer[i] = color;
+	}
+	else
+	{
+		for (int i = 0; i < surface->size; i++)
+		{
+			if (surface->framebuffer[i] != surface->mask_color)
+				surface->framebuffer[i] = color;
+		}
+	}
 }

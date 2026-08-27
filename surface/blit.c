@@ -24,8 +24,11 @@ void	blit(t_surface *surface_under, t_surface *surface_over,
 				pixel = surface_over->framebuffer[
 					src_y * surface_over->width + src_x];
 
-				if (surface_under->framebuffer[
-						y * surface_under->width + x] != TRANSPARENT && pixel != TRANSPARENT)
+				if (pixel != TRANSPARENT
+					&& (!surface_under->mask
+						|| surface_under->mask_color
+							!= surface_under->framebuffer[
+								y * surface_under->width + x]))
 				{
 					surface_under->framebuffer[
 						y * surface_under->width + x] = pixel;
@@ -35,4 +38,7 @@ void	blit(t_surface *surface_under, t_surface *surface_over,
 		}
 		y++;
 	}
+	surface_over->parent = surface_under;
+	surface_over->pos_x = pos_x;
+	surface_over->pos_y = pos_y;
 }

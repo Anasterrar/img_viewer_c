@@ -27,4 +27,5 @@ void			draw_outlines(t_surface *surface, int size, uint32_t color);
 void			print_point(t_point point);
 void    		print_point_list(int point_count, t_point *point_list);
 void            bresenham_algorithm(t_surface *surface, t_point p1, t_point p2);
+t_point     get_surface_pos(t_surface *surface, int mod, int part);
 #endif

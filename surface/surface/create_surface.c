@@ -11,5 +11,6 @@ t_surface	*create_surface(int width, int height)
 	new->width = width;
 	new->height = height;
 	new->size = width * height;
+	new->parent = NULL;
 	return (new);
 }

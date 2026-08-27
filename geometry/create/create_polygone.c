@@ -24,6 +24,8 @@ t_surface	*create_polygone(int point_count, int (*point_coordonates)[2])
 	width = max_list(buff_x, point_count) - min_list(buff_x, point_count) + 1;
 	height = max_list(buff_y, point_count) - min_list(buff_y, point_count) + 1; 
 	polygon = create_surface(width , height);
+	polygon->mask = true;
+	polygon->mask_color = TRANSPARENT;
 	
 	min_x = min_list(buff_x, point_count);
 	min_y = min_list(buff_y, point_count);
@@ -43,7 +45,7 @@ t_surface	*create_polygone(int point_count, int (*point_coordonates)[2])
 				points_list[next].y - min_y
 			}
 		);
-		//put_pixel(polygon, points_list[1].x - min_x, points_list[1].y - min_y, BLACK);		
+		//put_pixel(polygon, points_list[1].x - min_x, points_list[1].y - min_y, BLACK);	
 	}
 
 	int	x1_edge;

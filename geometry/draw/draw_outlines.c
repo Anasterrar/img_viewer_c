@@ -12,6 +12,8 @@ void    draw_outlines(t_surface *surface,int size, uint32_t color)
     */
     int     width;
     int     height;
+    if (surface->size < 4)
+        return;
 
     width = surface->width;
     height = surface->height;
