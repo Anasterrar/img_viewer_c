@@ -11,13 +11,18 @@
 #include <stdlib.h>
 #include <libgen.h>
 #include <inttypes.h>
+#include <stdbool.h>
 //HEADER
+#include "point.h"
 #include "surface.h"
 #include "image.h"
 #include "math.h"
 #include "geometry.h"
 #include "utils.h"
 #include "errors.h"
+
+extern t_surface_api surface;
+extern t_geometry_api geometry;
 //GLOBAL VARIABLE
 #define WIDTH_DEFAULT 1080
 #define	HEIGHT_DEFAULT 720

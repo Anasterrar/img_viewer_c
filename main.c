@@ -7,20 +7,13 @@
 
 t_visual	*app;
 
+
 int main(int argc, char **argv)
 {
 	t_img_data	*first;
 	t_img_data	*tmp;
-	t_surface	*outlines;
-	bool 		is_outlines = false;
-
 	SDL_Event 	event;
 	bool		running;
-	int		pos_x;
-	int		pos_y;
-	pos_x = 10;
-	pos_y = 10;
-	
 	if (error_input_img(argc, argv))
 		return (1);	
 	if (!visual_init())
@@ -29,9 +22,8 @@ int main(int argc, char **argv)
 	if (first == NULL)
 		goto quit;
 	tmp = first;
+	geometry.draw_polygon(tmp->loaded_img, 3, (int [][2]){{300, 0},{100, 200},{400, 300}});
 	running = true;
-	print_header_img(first);
-	outlines = create_outlines(tmp->loaded_img, 10, 0x630da8, IN);
 	while (running)
 	{
 		while (SDL_PollEvent(&event))
@@ -59,35 +51,10 @@ int main(int argc, char **argv)
 					tmp = tmp->next;
 					print_header_img(tmp);
 				}
-				if (event.key.key == SDLK_Q)
-					pos_x -= 2;
-				if (event.key.key == SDLK_D)
-					pos_x += 2;
-				if (event.key.key == SDLK_Z)
-					pos_y -= 2;
-				if (event.key.key == SDLK_S)
-					pos_y += 2;
-				if (event.key.key == SDLK_H)
-				{
-					is_outlines = is_outlines ? false : true ;
-				}
-				if (event.key.key == SDLK_O)
-				{
-					draw_outlines(tmp->loaded_img, 4, RED);
-				}
-					
 			}
         }
-		/*
-		print_point(get_surface_pos(tmp->loaded_img, GLOBAL, TOP_LEFT));
-		printf("SIZE:%d\n", get_surface_size(tmp->loaded_img));
-		printf("WIDTH:%d\n", get_surface_width(tmp->loaded_img));
-		printf("HEIGHT:%d\n", get_surface_height(tmp->loaded_img));
-		*/
-		fill(app->screen, BACKGROUND_COLOR);
-		blit(app->screen, tmp->loaded_img, 10, 10);
-		blit(app->screen, outlines, pos_x, pos_y);
-    
+		surface.fill(app->screen, BACKGROUND_COLOR);
+		surface.blit(app->screen, tmp->loaded_img, 10, 10);
 		SDL_UpdateTexture(
 			app->texture,
 			NULL, 

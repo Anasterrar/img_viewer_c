@@ -1,0 +1,193 @@
+# Visual C
+
+Petite librairie graphique en C basée sur SDL3.
+
+Le but du projet est de construire progressivement une API simple pour manipuler des surfaces, dessiner des primitives, charger des images et faire quelques opérations graphiques basiques.
+
+Le projet est surtout un terrain d'expérimentation pour comprendre comment construire une petite librairie graphique en C.
+
+## Fonctionnalités actuelles
+
+### Surfaces
+
+* Création / destruction
+* Copie
+* Resize
+* Crop
+* Split
+* Fusion
+* Fill / Clear
+* `get_pixel` / `put_pixel`
+* Blit
+* Masques
+* Déplacement
+* Collision entre surfaces
+* Collision point / surface
+* Flip
+* Récupération des dimensions et de la position
+
+### Géométrie
+
+* Points
+* Lignes
+* Rectangles
+* Carrés
+* Triangles
+* Polygones
+
+### Images
+
+Pour le moment, le projet travaille principalement avec les images PPM.
+
+D'autres formats seront ajoutés plus tard.
+
+### API
+
+Les fonctions sont regroupées dans des tables de fonctions afin d'avoir une utilisation plus agréable en C :
+
+```c
+surface.create(500, 500);
+surface.fill(surf, BLACK);
+surface.put_pixel(surf, 10, 10, RED);
+
+geometry.draw_polygon(
+    surf,
+    3,
+    (int [][2]){{300, 0}, {100, 200}, {400, 300}}
+);
+```
+
+L'objectif est de pouvoir garder une API lisible malgré le fait que l'implémentation soit en C.
+
+# Mini doc
+
+## Surface
+
+Une `t_surface` représente une image manipulable en mémoire.
+
+```c
+t_surface *surf;
+
+surf = surface.create(800, 600);
+```
+
+Une surface contient notamment :
+
+```c
+typedef struct s_surface
+{
+    int         width;
+    int         height;
+    int         size;
+    int         pos_x;
+    int         pos_y;
+    bool        mask;
+    uint32_t    mask_color;
+    uint32_t    *framebuffer;
+} t_surface;
+```
+
+### Créer
+
+```c
+t_surface *surf = surface.create(800, 600);
+```
+
+### Détruire
+
+```c
+surface.destroy(surf);
+```
+
+### Dessiner un pixel
+
+```c
+surface.put_pixel(surf, 100, 50, RED);
+```
+
+### Lire un pixel
+
+```c
+uint32_t color;
+
+color = surface.get_pixel(surf, 100, 50);
+```
+
+### Remplir
+
+```c
+surface.fill(surf, BLACK);
+```
+
+### Effacer
+
+```c
+surface.clear(surf);
+```
+
+### Blit
+
+```c
+surface.blit(screen, image, 100, 100);
+```
+
+### Redimensionner
+
+```c
+surface.resize(image, 500, 300);
+```
+
+### Copier
+
+```c
+t_surface *copy;
+
+copy = surface.copy(image);
+```
+
+---
+
+## Géométrie
+
+Les fonctions de géométrie travaillent directement avec les surfaces.
+
+Exemple :
+
+```c
+geometry.draw_polygon(
+    screen,
+    3,
+    (int [][2]){
+        {300, 0},
+        {100, 200},
+        {400, 300}
+    }
+);
+```
+
+---
+
+# Roadmap
+
+Le projet est encore en développement.
+
+Quelques fonctionnalités prévues :
+
+* Cercles
+* Ellipses
+* Rotation
+* Scale
+* Translation
+* Clipping
+* Alpha blending
+* Différents modes de compositing
+* Conversion de couleurs RGB / HSV / HSL
+* Interpolation
+* Sampling bilinéaire
+* Support BMP
+* Éventuellement PNG / JPEG
+* Audio
+* Video 
+
+Une gestion des allocations temporaires et une sorte de garbage collector simplifié sont également envisagées pour rendre l'utilisation de la librairie plus agréable.
+

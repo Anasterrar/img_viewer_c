@@ -28,20 +28,43 @@ typedef struct s_surface
 #define	RELATIVE 0
 #define GLOBAL 1
 
-// FUNCTION
-t_surface       *create_surface(int width, int height);
-void			resize_surface(t_surface *surface, int width, int height);
-void			destroy_surface(t_surface *surface);
-void    		put_mask(t_surface *surface, uint32_t color);
-void    		remove_mask(t_surface *surface);
-void    	    blit(t_surface *surface_under, t_surface *surface_over, int pos_x, int pos_y);
-void    		clear(t_surface *surface);
-void    	    fill(t_surface *surface, uint32_t color);
-uint32_t		get_pixel(t_surface *surface, int pos_x, int pos_y);
-void			put_pixel(t_surface *surface, int pos_x, int pos_y, uint32_t color);
-int     		get_surface_size(t_surface *surface);
-int     		get_surface_width(t_surface *surface);
-int     		get_surface_height(t_surface *surface);
+#define HORIZONTAL 0
+#define VERTICAL 1
+#define BOTH 2
 
+#define LEFT 0
+#define BOTTOM 1
+// FUNCTION
+void        put_pixel(t_surface *surface, int pos_x, int pos_y, uint32_t color);
+uint32_t    get_pixel(t_surface *surf, int pos_x, int pos_y);
 //free all
+typedef struct s_surface_api
+{
+    t_surface *(*create)(int width, int height);
+    t_surface *(*copy)(t_surface *surface);
+    void       (*resize)(t_surface *surface, int width, int height);
+    void       (*destroy)(t_surface *surface);
+    t_surface *(*fusion)(t_surface *surface1, t_surface *surface2, int way);
+    t_surface *(*split)(t_surface *surface, int split_x_y, int way);
+    void       (*move)(t_surface *surface, int add_pos_x, int add_pos_y);
+    void       (*put_mask)(t_surface *surface, uint32_t color);
+    void       (*remove_mask)(t_surface *surface);
+    void       (*blit)(t_surface *surface_under,
+                       t_surface *surface_over,
+                       int pos_x,
+                       int pos_y);
+    void       (*clear)(t_surface *surface);
+    void       (*fill)(t_surface *surface, uint32_t color);
+    uint32_t   (*get_pixel)(t_surface *surface, int pos_x, int pos_y);
+    void       (*put_pixel)(t_surface *surface, int pos_x, int pos_y,
+                            uint32_t color);
+    int        (*get_size)(t_surface *surface);
+    int        (*get_width)(t_surface *surface);
+    int        (*get_height)(t_surface *surface);
+	t_point    (*get_pos)(t_surface *surface, int mod, int part);
+    void       (*flip)(t_surface *surface, int way);
+    bool       (*colide)(t_surface *surface1, t_surface *surface2);
+    void       (*print_data)(t_surface *surface);
+
+} t_surface_api;
 #endif
