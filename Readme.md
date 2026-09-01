@@ -236,7 +236,7 @@ The project is still fairly young, so this list will probably change over time.
 
 I'd also like to experiment with a more convenient way of handling allocations.
 
-The idea is to keep track of surfaces allocated by the application and automatically free any that are still allocated when the application exits.
+The idea would be to keep track of the surfaces allocated by the application and automatically free any that are still allocated when the application exits.
 
 For temporary surfaces, another list could be used to automatically free them after a few frames.
 
