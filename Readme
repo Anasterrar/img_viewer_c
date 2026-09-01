@@ -1,17 +1,17 @@
 # Visual C
 
-Petite librairie graphique en C basée sur SDL3.
+Visual C is a small graphics library I'm developing in C, currently based on SDL3.
 
-Le but du projet est de construire progressivement une API simple pour manipuler des surfaces, dessiner des primitives, charger des images et faire quelques opérations graphiques basiques.
+The goal is to manipulate images and surfaces directly in memory, then gradually build tools around them. The project mainly serves as a way for me to understand how 2D rendering works and how to structure a C library without trying to make something particularly large from the start.
 
-Le projet est surtout un terrain d'expérimentation pour comprendre comment construire une petite librairie graphique en C.
+PPM files are currently parsed directly to build the framebuffer.
 
-## Fonctionnalités actuelles
+## Current features
 
 ### Surfaces
 
-* Création / destruction
-* Copie
+* Create / destroy
+* Copy
 * Resize
 * Crop
 * Split
@@ -19,51 +19,60 @@ Le projet est surtout un terrain d'expérimentation pour comprendre comment cons
 * Fill / Clear
 * `get_pixel` / `put_pixel`
 * Blit
-* Masques
-* Déplacement
-* Collision entre surfaces
-* Collision point / surface
+* Masks
+* Move
+* Surface collision
+* Point / surface collision
 * Flip
-* Récupération des dimensions et de la position
+* Get dimensions and position
 
-### Géométrie
+### Geometry
 
 * Points
-* Lignes
+* Lines
 * Rectangles
-* Carrés
+* Squares
 * Triangles
-* Polygones
+* Polygons
+* Bresenham's algorithm
 
 ### Images
 
-Pour le moment, le projet travaille principalement avec les images PPM.
+For now, only PPM images are supported, but this will evolve quickly.
 
-D'autres formats seront ajoutés plus tard.
+## API
 
-### API
+I chose to use function pointer tables to group functions by domain.
 
-Les fonctions sont regroupées dans des tables de fonctions afin d'avoir une utilisation plus agréable en C :
+Very much inspired by Pygame, the idea is to be able to write something simple in C:
 
 ```c
 surface.create(500, 500);
+
 surface.fill(surf, BLACK);
+
 surface.put_pixel(surf, 10, 10, RED);
 
 geometry.draw_polygon(
     surf,
     3,
-    (int [][2]){{300, 0}, {100, 200}, {400, 300}}
+    (int [][2]){
+        {300, 0},
+        {100, 200},
+        {400, 300}
+    }
 );
 ```
 
-L'objectif est de pouvoir garder une API lisible malgré le fait que l'implémentation soit en C.
+This makes it possible to have `surface.create()`, `surface.blit()`, `geometry.draw_polygon()`, etc., without having to add a prefix to every function.
 
-# Mini doc
+---
+
+# Mini documentation
 
 ## Surface
 
-Une `t_surface` représente une image manipulable en mémoire.
+A `t_surface` represents an image stored in memory. It can be empty or transparent.
 
 ```c
 t_surface *surf;
@@ -71,7 +80,7 @@ t_surface *surf;
 surf = surface.create(800, 600);
 ```
 
-Une surface contient notamment :
+It mainly contains the image dimensions and its framebuffer:
 
 ```c
 typedef struct s_surface
@@ -87,25 +96,25 @@ typedef struct s_surface
 } t_surface;
 ```
 
-### Créer
+### Create a surface
 
 ```c
 t_surface *surf = surface.create(800, 600);
 ```
 
-### Détruire
+### Destroy a surface
 
 ```c
 surface.destroy(surf);
 ```
 
-### Dessiner un pixel
+### Draw a pixel
 
 ```c
 surface.put_pixel(surf, 100, 50, RED);
 ```
 
-### Lire un pixel
+### Read a pixel
 
 ```c
 uint32_t color;
@@ -113,13 +122,13 @@ uint32_t color;
 color = surface.get_pixel(surf, 100, 50);
 ```
 
-### Remplir
+### Fill a surface
 
 ```c
 surface.fill(surf, BLACK);
 ```
 
-### Effacer
+### Clear a surface
 
 ```c
 surface.clear(surf);
@@ -127,17 +136,19 @@ surface.clear(surf);
 
 ### Blit
 
+Copies one surface onto another.
+
 ```c
 surface.blit(screen, image, 100, 100);
 ```
 
-### Redimensionner
+### Resize
 
 ```c
 surface.resize(image, 500, 300);
 ```
 
-### Copier
+### Copy
 
 ```c
 t_surface *copy;
@@ -147,11 +158,13 @@ copy = surface.copy(image);
 
 ---
 
-## Géométrie
+## Geometry
 
-Les fonctions de géométrie travaillent directement avec les surfaces.
+The `create` functions create a surface and return a pointer to it. For now, the returned surface must therefore be stored and eventually destroyed.
 
-Exemple :
+The `draw` functions draw directly onto an existing surface. They return nothing and simply modify the surface passed as a parameter.
+
+For example:
 
 ```c
 geometry.draw_polygon(
@@ -165,29 +178,77 @@ geometry.draw_polygon(
 );
 ```
 
+draws the polygon directly onto the screen.
+
+```c
+geometry.create_polygon(
+    screen,
+    3,
+    (int [][2]){
+        {300, 0},
+        {100, 200},
+        {400, 300}
+    }
+);
+```
+
+creates a polygon surface that can then be stored and blitted onto the screen.
+
 ---
 
 # Roadmap
 
-Le projet est encore en développement.
+The project is still fairly young, so this list will probably change over time.
 
-Quelques fonctionnalités prévues :
+### 2D
 
-* Cercles
-* Ellipses
-* Rotation
-* Scale
-* Translation
-* Clipping
-* Alpha blending
-* Différents modes de compositing
-* Conversion de couleurs RGB / HSV / HSL
-* Interpolation
-* Sampling bilinéaire
-* Support BMP
-* Éventuellement PNG / JPEG
-* Audio
-* Video 
+* [ ] Collision with offset
+* [ ] Circles
+* [ ] Ellipses
+* [ ] Rotation
+* [ ] Scale
+* [ ] Translation
+* [ ] Clipping
+* [ ] Alpha blending
+* [ ] Other compositing modes
+* [ ] RGB / HSV / HSL
+* [ ] Interpolation
+* [ ] Bilinear sampling
+* [ ] Bicubic sampling, possibly
 
-Une gestion des allocations temporaires et une sorte de garbage collector simplifié sont également envisagées pour rendre l'utilisation de la librairie plus agréable.
+### Images
 
+* [ ] BMP
+* [ ] PNG
+* [ ] JPEG
+* [ ] Format conversion
+
+### Other
+
+* [ ] Audio
+* [ ] Video
+* [ ] Improve type and size handling
+* [ ] Rework header organization
+* [ ] Improve error handling
+* [ ] Add more debugging tools
+
+### Memory management
+
+I'd also like to experiment with a more convenient way of handling allocations.
+
+The idea is to keep track of surfaces allocated by the application and automatically free any that are still allocated when the application exits.
+
+For temporary surfaces, another list could be used to automatically free them after a few frames.
+
+---
+
+## 3D
+
+The project will eventually evolve to support 3D objects such as:
+
+* Cameras
+* Geometric shapes
+* Meshes
+* Assets
+
+The goal is to keep the 2D and 3D APIs as consistent as possible.
